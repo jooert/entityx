@@ -71,9 +71,18 @@ public:
   static const Id INVALID;
 
   Entity() {}
-  Entity(const Entity &) = default;
-  Entity(Entity &&) = default;
-  Entity &operator = (const Entity &) = default;
+  Entity(const ptr<EntityManager> &manager, Entity::Id id) : manager_(manager), id_(id) {
+    std::cerr << "Entity(" << manager << "): " << this << std::endl;
+  }
+  Entity(const Entity &other) : manager_(other.manager_), id_(other.id_) {
+    std::cerr << "Entity(" << other.manager_.lock() << "): " << this << std::endl;
+  }
+  Entity &operator = (const Entity &other) {
+    manager_ = other.manager_;
+    id_ = other.id_;
+    std::cerr << "Entity:=(" << other << "): " << this << std::endl;
+    return *this;
+  }
 
   /**
    * Check if Entity handle is invalid.
@@ -129,18 +138,16 @@ public:
    */
   void destroy();
 
+  std::bitset<entityx::MAX_COMPONENTS> component_mask() const;
+
  private:
-  friend class EntityManager;
-
-  Entity(ptr<EntityManager> manager, Entity::Id id) : manager_(manager), id_(id) {}
-
   weak_ptr<EntityManager> manager_;
   Entity::Id id_ = INVALID;
 };
 
 
 inline std::ostream &operator << (std::ostream &out, const Entity::Id &id) {
-  out << "Entity::Id(" << std::hex << id.id() << ")";
+  out << "Entity::Id(" << id.index() << "." << id.version() << ")";
   return out;
 }
 
@@ -551,6 +558,10 @@ class EntityManager : entityx::help::NonCopyable, public enable_shared_from_this
    */
   void destroy_all();
 
+  ComponentMask component_mask(Entity::Id id) {
+    return entity_component_mask_.at(id.index());
+  }
+
  private:
   template <typename C>
   ComponentMask component_mask() {
@@ -642,5 +653,11 @@ void Entity::unpack(ptr<A> &a, ptr<Args> & ... args) {
   assert(valid());
   manager_.lock()->unpack(id_, a, args ...);
 }
+
+inline bool Entity::valid() const {
+  return !manager_.expired() && manager_.lock()->valid(id_);
+}
+
+
 
 }  // namespace entityx

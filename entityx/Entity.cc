@@ -22,19 +22,24 @@ void Entity::invalidate() {
 }
 
 void Entity::destroy() {
+  std::cerr << "Entity::destroy(): " << id_ << ", " << manager_.lock() << std::endl;
   assert(valid());
   manager_.lock()->destroy(id_);
   invalidate();
 }
 
-bool Entity::valid() const {
-  return !manager_.expired() && manager_.lock()->valid(id_);
+std::bitset<entityx::MAX_COMPONENTS> Entity::component_mask() const {
+  return manager_.lock()->component_mask(id_);
 }
 
+
+
 EntityManager::EntityManager(ptr<EventManager> event_manager) : event_manager_(event_manager) {
+  std::cerr << "EntityManager(): " << this << std::endl;
 }
 
 EntityManager::~EntityManager() {
+  std::cerr << "~EntityManager(): " << this << std::endl;
 }
 
 void EntityManager::destroy_all() {

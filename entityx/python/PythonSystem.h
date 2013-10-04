@@ -144,8 +144,8 @@ private:
  * A helper function for class_ to assign a component to an entity.
  */
 template <typename Component>
-void assign_to(ptr<Component> component, Entity &entity) {  // NOLINT
-  entity.assign<Component>(component);
+void assign_to(ptr<Component> component, ptr<EntityManager> entity_manager, Entity::Id id) {
+  entity_manager->assign<Component>(id, component);
 }
 
 
@@ -154,8 +154,8 @@ void assign_to(ptr<Component> component, Entity &entity) {  // NOLINT
  * entity.
  */
 template <typename Component>
-ptr<Component> get_component(Entity &entity) {  // NOLINT
-  return entity.component<Component>();
+ptr<Component> get_component(ptr<EntityManager> entity_manager, Entity::Id id) {
+  return entity_manager->component<Component>(id);
 }
 
 
