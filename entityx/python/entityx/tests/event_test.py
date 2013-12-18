@@ -5,8 +5,8 @@ class EventTest(Entity):
     collided = False
 
     def on_collision(self, event):
-        print self
-        print event
-        # assert event.a
-        # assert event.b
+        print 'self =', self
+        print 'event =', event
+        assert event.a
+        assert event.b
         self.collided = True

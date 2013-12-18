@@ -8,18 +8,21 @@
  * Author: Alec Thomas <alec@swapoff.org>
  */
 
-// http://docs.python.org/2/extending/extending.html
+// NOTE: MUST be first include. See http://docs.python.org/2/extending/extending.html
 #include <Python.h>
+#include <gtest/gtest.h>
+#include <boost/python.hpp>
 #include <cassert>
 #include <vector>
 #include <string>
-#include <gtest/gtest.h>
-#include <boost/python.hpp>
+#include <iostream>
 #include "entityx/Entity.h"
 #include "entityx/Event.h"
 #include "entityx/python/PythonSystem.h"
 
 namespace py = boost::python;
+using std::cerr;
+using std::endl;
 using namespace entityx;
 using namespace entityx::python;
 
@@ -50,9 +53,9 @@ struct CollisionEventProxy : public PythonEventProxy, public Receiver<CollisionE
 
   void receive(const CollisionEvent &event) {
     for (auto entity : entities) {
-      auto py_entity = entity.component<PythonComponent>();
       if (entity == event.a || entity == event.b) {
-        py_entity->object.attr("on_collision")(event.a);
+        auto py_entity = entity.component<PythonComponent>();
+        py_entity->object.attr("on_collision")(event);
       }
     }
   }
@@ -95,7 +98,7 @@ protected:
       initentityx_python_test();
       initialized = true;
     }
-    system->add_event_proxy<CollisionEvent, CollisionEventProxy>(ev, ptr<CollisionEventProxy>(new CollisionEventProxy()));
+    system->add_event_proxy<CollisionEvent>(ev, ptr<CollisionEventProxy>(new CollisionEventProxy()));
     system->configure(ev);
   }
 

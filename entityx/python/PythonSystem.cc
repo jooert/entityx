@@ -9,13 +9,13 @@
  */
 
 // http://docs.python.org/2/extending/extending.html
+#include <boost/noncopyable.hpp>
 #include <Python.h>
 #include <cassert>
 #include <string>
 #include <iostream>
 #include <sstream>
 #include "entityx/python/PythonSystem.h"
-#include "entityx/help/NonCopyable.h"
 
 namespace py = boost::python;
 
@@ -56,6 +56,9 @@ private:
 };
 
 
+/**
+ * Base class for Python entities.
+ */
 struct PythonEntity {
   explicit PythonEntity(ptr<EntityManager> entity_manager, Entity::Id id) : _entity(Entity(entity_manager, id)) {}  // NOLINT
   virtual ~PythonEntity() {}
@@ -103,7 +106,7 @@ static std::string Entity_Id_repr(Entity::Id id) {
 // A to-Python converter from Entity to PythonEntity.
 struct EntityToPythonEntity {
   static PyObject *convert(Entity entity) {
-    std::cerr << entity << ": " << entity.component_mask() << std::endl;
+    std::cerr << "converting " << entity << ": " << entity.component_mask() << std::endl;
     auto python = entity.component<PythonComponent>();
     assert(python);
     return py::incref(python->object.ptr());
@@ -124,7 +127,7 @@ BOOST_PYTHON_MODULE(_entityx) {
   py::class_<PythonEntityXLogger>("Logger", py::no_init)
     .def("write", &PythonEntityXLogger::write);
 
-  py::class_<BaseEvent, ptr<BaseEvent>, entityx::help::NonCopyable>("BaseEvent", py::no_init);
+  py::class_<BaseEvent, ptr<BaseEvent>, boost::noncopyable>("BaseEvent", py::no_init);
 
   py::class_<PythonEntity>("Entity", py::init<ptr<EntityManager>, Entity::Id>())
     .def_readonly("_entity_id", &PythonEntity::_entity_id)
@@ -143,12 +146,12 @@ BOOST_PYTHON_MODULE(_entityx) {
     .def("get_component", &get_component<PythonComponent>)
     .staticmethod("get_component");
 
-  py::class_<EntityManager, ptr<EntityManager>, entityx::help::NonCopyable>("EntityManager", py::no_init)
+  py::class_<EntityManager, ptr<EntityManager>, boost::noncopyable>("EntityManager", py::no_init)
     .def("configure", &EntityManager_configure);
 
   void (EventManager::*emit)(const BaseEvent &) = &EventManager::emit;
 
-  py::class_<EventManager, ptr<EventManager>, entityx::help::NonCopyable>("EventManager", py::no_init)
+  py::class_<EventManager, ptr<EventManager>, boost::noncopyable>("EventManager", py::no_init)
     .def("emit", emit);
 
   py::implicitly_convertible<PythonEntity, Entity>();
