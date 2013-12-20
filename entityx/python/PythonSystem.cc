@@ -106,9 +106,8 @@ static std::string Entity_Id_repr(Entity::Id id) {
 // A to-Python converter from Entity to PythonEntity.
 struct EntityToPythonEntity {
   static PyObject *convert(Entity entity) {
-    std::cerr << "converting " << entity << ": " << entity.component_mask() << std::endl;
     auto python = entity.component<PythonComponent>();
-    assert(python);
+    assert(python && "Entity does not have a PythonComponent");
     return py::incref(python->object.ptr());
   }
 };
@@ -116,7 +115,6 @@ struct EntityToPythonEntity {
 
 Entity::Id EntityManager_configure(ptr<EntityManager> entity_manager, py::object self) {
   Entity entity = entity_manager->create();
-  std::cerr << "created new entity " << entity << std::endl;
   entity.assign<PythonComponent>(self);
   return entity.id();
 }

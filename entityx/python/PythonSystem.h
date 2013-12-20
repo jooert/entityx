@@ -124,8 +124,7 @@ private:
   }
 
   /**
-   * Delete an Entity receiver. This is called automatically by PythonSystem
-   * after testing with can_send().
+   * Delete an Entity receiver. This is called automatically by PythonSystem.
    *
    * @param entity The entity that was receiving events.
    */

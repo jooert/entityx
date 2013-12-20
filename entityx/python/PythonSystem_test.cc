@@ -78,8 +78,8 @@ BOOST_PYTHON_MODULE(entityx_python_test) {
     .def_readwrite("y", &Direction::y);
 
   py::class_<CollisionEvent, ptr<CollisionEvent>, py::bases<BaseEvent>>("Collision", py::init<Entity, Entity>())
-    .def_readonly("a", &CollisionEvent::a)
-    .def_readonly("b", &CollisionEvent::b);
+    .add_property("a", py::make_getter(&CollisionEvent::a, py::return_value_policy<py::return_by_value>()))
+    .add_property("b", py::make_getter(&CollisionEvent::b, py::return_value_policy<py::return_by_value>()));
 }
 
 
@@ -199,6 +199,7 @@ TEST_F(PythonSystemTest, TestEventDelivery) {
     Entity g = em->create();
     auto scripte = e.assign<PythonComponent>("entityx.tests.event_test", "EventTest");
     auto scriptf = f.assign<PythonComponent>("entityx.tests.event_test", "EventTest");
+    auto scriptg = g.assign<PythonComponent>("entityx.tests.event_test", "EventTest");
     ASSERT_FALSE(scripte->object.attr("collided"));
     ASSERT_FALSE(scriptf->object.attr("collided"));
     ev->emit<CollisionEvent>(f, g);

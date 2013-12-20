@@ -72,15 +72,12 @@ public:
 
   Entity() {}
   Entity(const ptr<EntityManager> &manager, Entity::Id id) : manager_(manager), id_(id) {
-    std::cerr << "Entity(" << this << ", " << manager << ", " << id.index() << "." << id.version() << ")" << std::endl;
   }
   Entity(const Entity &other) : manager_(other.manager_), id_(other.id_) {
-    std::cerr << "Entity(" << this << ", " << &other.manager_ << ", " << id_.index() << "." << id_.version() << ")" << std::endl;
   }
   Entity &operator = (const Entity &other) {
     manager_ = other.manager_;
     id_ = other.id_;
-    std::cerr << "Entity = (" << other << "): " << this << std::endl;
     return *this;
   }
 
