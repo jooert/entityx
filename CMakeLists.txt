@@ -45,7 +45,12 @@ if (NOT ENTITYX_HAVE_CXX11_STDLIB)
     message("-- Not using -stdlib=libc++ (test failed to build)")
     set(CMAKE_CXX_FLAGS "${OLD_CMAKE_CXX_FLAGS}")
 else ()
-    message("-- Using -stdlib=libc++")
+    if (NOT ENTITYX_USE_CPP11_STDLIB)
+        message("-- Not using -stdlib=libc++")
+        set(CMAKE_CXX_FLAGS "${OLD_CMAKE_CXX_FLAGS}")
+    else ()
+        message("-- Using -stdlib=libc++")
+    endif ()
 endif ()
 
 
